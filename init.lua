@@ -724,6 +724,8 @@ require('lazy').setup({
         'black', -- Used to format Python code
         'google-java-format', -- Used to format Java code
         'npm-groovy-lint', -- Used to lint Groovy code
+        'prettierd', -- Used to format JavaScript, TypeScript, HTML, CSS, etc.
+        'yamlfmt', -- Used to format YAML files
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -780,9 +782,13 @@ require('lazy').setup({
         python = { 'isort', 'black' },
         java = { 'google-java-format' },
         groovy = { 'npm-groovy-lint' },
-        --
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        html = { 'prettierd', 'prettier', stop_after_first = true },
+        css = { 'prettierd', 'prettier', stop_after_first = true },
+        json = { 'prettierd', 'prettier', stop_after_first = true },
+        yaml = { 'yamlfmt' },
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
       },
     },
   },

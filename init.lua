@@ -723,6 +723,7 @@ require('lazy').setup({
         'isort', -- Used to sort Python imports
         'black', -- Used to format Python code
         'google-java-format', -- Used to format Java code
+        'npm-groovy-lint', -- Used to lint Groovy code
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -778,6 +779,7 @@ require('lazy').setup({
         -- Conform can also run multiple formatters sequentially
         python = { 'isort', 'black' },
         java = { 'google-java-format' },
+        groovy = { 'npm-groovy-lint' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
@@ -940,7 +942,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'python', 'java', 'groovy', 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {

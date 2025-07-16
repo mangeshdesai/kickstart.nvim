@@ -121,6 +121,16 @@ end)
 -- Enable break indent
 vim.o.breakindent = true
 
+-- Enable smart indentation
+vim.o.smartindent = true
+
+-- Tab settings
+vim.o.expandtab = true -- Use spaces instead of tabs
+vim.o.shiftwidth = 2 -- Number of spaces to use for each step of (auto)indent
+vim.o.tabstop = 2 -- Number of spaces that a <Tab> counts for
+-- vim.o.softtabstop = 4 -- Number of spaces that a <Tab> counts for while editing
+-- vim.o.shiftround = true -- Round indent to multiple of shiftwidth
+
 -- Save undo history
 vim.o.undofile = true
 
@@ -998,11 +1008,11 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.

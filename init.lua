@@ -732,6 +732,8 @@ require('lazy').setup({
         'npm-groovy-lint', -- Used to lint Groovy code
         'prettierd', -- Used to format JavaScript, TypeScript, HTML, CSS, etc.
         'yamlfmt', -- Used to format YAML files
+        'xmlformatter', -- Used to format XML files
+        'beautysh', -- Used to format shell scripts
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -794,6 +796,8 @@ require('lazy').setup({
         css = { 'prettierd', 'prettier', stop_after_first = true },
         json = { 'prettierd', 'prettier', stop_after_first = true },
         yaml = { 'yamlfmt' },
+        xml = { 'xmlformatter' },
+        shell = { 'beautysh' },
         -- You can use 'stop_after_first' to run the first available formatter from the list
       },
     },

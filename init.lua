@@ -93,6 +93,9 @@ vim.g.maplocalleader = ' '
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
+-- Set Lombok agent for jdtls (Java LSP) to resolve Lombok-generated code
+vim.env.JDTLS_JVM_ARGS = '-javaagent:' .. vim.fn.expand '$HOME' .. '/.m2/repository/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar'
+
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
@@ -140,6 +143,13 @@ vim.o.smartcase = true
 
 -- Keep signcolumn on by default
 vim.o.signcolumn = 'yes'
+
+-- Auto-reload files changed outside of Neovim
+vim.o.autoread = true
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
+  group = vim.api.nvim_create_augroup('auto-reload', { clear = true }),
+  command = 'if mode() != "c" | checktime | endif',
+})
 
 -- Decrease update time
 vim.o.updatetime = 250
@@ -208,6 +218,12 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- Use CTRL+<hjkl> to switch windows from terminal mode
+vim.keymap.set('t', '<C-h>', '<C-\\><C-n><C-w><C-h>', { desc = 'Move focus to the left window' })
+vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w><C-l>', { desc = 'Move focus to the right window' })
+vim.keymap.set('t', '<C-j>', '<C-\\><C-n><C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
 -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
@@ -691,8 +707,23 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
+        ts_ls = {},
+        pyright = {},
+        jdtls = {
+          settings = {
+            java = {
+              server = { launchMode = 'Standard' },
+              autobuild = { enabled = true },
+            },
+          },
+        },
+        groovyls = {},
+        html = {},
+        cssls = {},
+        jsonls = {},
+        yamlls = {},
+        bashls = {},
+        lemminx = {},
 
         lua_ls = {
           -- cmd = { ... },
@@ -779,7 +810,7 @@ require('lazy').setup({
           return nil
         else
           return {
-            timeout_ms = 500,
+            timeout_ms = 2000,
             lsp_format = 'fallback',
           }
         end
@@ -794,10 +825,14 @@ require('lazy').setup({
         typescript = { 'prettierd', 'prettier', stop_after_first = true },
         html = { 'prettierd', 'prettier', stop_after_first = true },
         css = { 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
         json = { 'prettierd', 'prettier', stop_after_first = true },
         yaml = { 'yamlfmt' },
         xml = { 'xmlformatter' },
-        shell = { 'beautysh' },
+        sh = { 'beautysh' },
+        bash = { 'beautysh' },
+        zsh = { 'beautysh' },
         -- You can use 'stop_after_first' to run the first available formatter from the list
       },
     },
@@ -910,6 +945,13 @@ require('lazy').setup({
     'catppuccin/nvim',
     name = 'catppuccin',
     priority = 1000,
+    opts = {
+      transparent_background = true,
+    },
+    config = function(_, opts)
+      require('catppuccin').setup(opts)
+      vim.cmd.colorscheme 'catppuccin'
+    end,
   },
 
   -- Highlight todo, notes, etc in comments
@@ -954,46 +996,28 @@ require('lazy').setup({
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    branch = 'main',
+    lazy = false,
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = {
-        'python',
-        'java',
-        'groovy',
-        'bash',
-        'c',
-        'diff',
-        'html',
-        'lua',
-        'luadoc',
-        'markdown',
-        'markdown_inline',
-        'query',
-        'vim',
-        'vimdoc',
-        'css',
-        'javascript',
-        'typescript',
-        'json',
-        'yaml',
-        'sql',
-        'csv',
-        'xml',
-        'regex',
-      },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      -- indent = { enable = true, disable = { 'ruby' } },
-    },
+    config = function()
+      local parsers = {
+        'python', 'java', 'groovy', 'bash', 'c', 'diff', 'html',
+        'lua', 'luadoc', 'markdown', 'markdown_inline', 'query',
+        'vim', 'vimdoc', 'css', 'javascript', 'typescript', 'json',
+        'yaml', 'sql', 'csv', 'xml', 'regex', 'tsx',
+      }
+      require('nvim-treesitter').install(parsers)
+
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = {
+          'python', 'java', 'groovy', 'bash', 'sh', 'c', 'diff', 'html',
+          'lua', 'markdown', 'query', 'vim', 'help', 'css',
+          'javascript', 'typescript', 'typescriptreact', 'json',
+          'yaml', 'sql', 'csv', 'xml',
+        },
+        callback = function() pcall(vim.treesitter.start) end,
+      })
+    end,
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
     --
@@ -1052,5 +1076,3 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
--- Set colorscheme
-vim.cmd.colorscheme 'catppuccin'
